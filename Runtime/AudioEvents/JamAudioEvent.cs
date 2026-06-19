@@ -10,22 +10,33 @@ namespace JamAudioToolkit
     public class JamAudioEvent : ScriptableObject
     {
         [Header("Clips")]
+        [Tooltip("One or more clips this event can choose from when played.")]
         public AudioClip[] clips;
 
         [Header("Playback")]
+        [Tooltip("Base playback volume before randomization.")]
         [Range(0f, 1f)] public float volume = 1f;
+        [Tooltip("Random volume offset added to the base volume.")]
+        [JamMinMax]
         public Vector2 volumeRandomRange = Vector2.zero;
 
+        [Tooltip("Base playback pitch before randomization.")]
         [Range(-3f, 3f)] public float pitch = 1f;
+        [Tooltip("Random pitch offset added to the base pitch.")]
+        [JamMinMax]
         public Vector2 pitchRandomRange = Vector2.zero;
 
+        [Tooltip("When enabled, this event loops until its AudioSource is stopped.")]
         public bool loop;
 
         [Header("Selection")]
+        [Tooltip("Choose a random clip each time this event plays.")]
         public bool randomizeClip = true;
+        [Tooltip("Avoid choosing the same clip twice in a row when possible.")]
         public bool preventImmediateRepeat = true;
 
         [Header("Routing")]
+        [Tooltip("Optional mixer group. Leave empty to use the default audio output.")]
         public AudioMixerGroup outputMixerGroup;
 
         private int lastPlayedIndex = -1;

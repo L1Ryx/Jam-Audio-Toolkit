@@ -10,7 +10,16 @@ audio behavior quickly, without middleware or third-party dependencies.
 This package is at the start of development. The first runtime pieces,
 `JamAudioEvent` and `JamAudioPlayer`, are in place with event-based clip
 selection, pitch randomization, volume randomization, optional no-immediate-repeat
-selection, mixer group routing data, and no-code playback from GameObjects.
+selection, mixer group routing data, no-code playback from GameObjects, and a
+small programmer API for one-line playback. GameObject playback uses a simple
+positioning mode so designers can choose non-positional audio or 3D playback.
+
+## Programmer API
+
+```csharp
+JamAudio.Play(footstepEvent);
+JamAudio.PlayAtPosition(explosionEvent, transform.position);
+```
 
 ## Unity Version
 
