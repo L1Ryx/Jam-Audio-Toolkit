@@ -12,7 +12,8 @@ This package is at the start of development. The first runtime pieces,
 selection, pitch randomization, volume randomization, optional no-immediate-repeat
 selection, mixer group routing data, no-code playback from GameObjects, and a
 small programmer API for one-line playback. GameObject playback uses a simple
-positioning mode so designers can choose non-positional audio or 3D playback.
+positioning mode so designers can choose non-positional audio or 3D playback,
+plus an optional debug view for the generated AudioSource.
 
 ## Programmer API
 
