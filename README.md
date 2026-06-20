@@ -29,12 +29,16 @@ working. Sample scenes and fuller release polish are still in progress.
 
 ## Installation
 
-### Unity Asset Store
+<details>
+<summary><strong>Unity Asset Store</strong></summary>
 
 Import the package into your Unity project. After import, you can immediately
 create Jam Audio assets and call `JamAudio` from scripts.
 
-### Git URL
+</details>
+
+<details>
+<summary><strong>Git URL</strong></summary>
 
 In Unity, open `Window > Package Manager`, press `+`, choose
 `Add package from git URL...`, and enter:
@@ -42,6 +46,8 @@ In Unity, open `Window > Package Manager`, press `+`, choose
 ```text
 https://github.com/L1Ryx/Jam-Audio-Toolkit.git
 ```
+
+</details>
 
 ## How To Use This Package
 
@@ -53,7 +59,8 @@ Jam Audio Toolkit is built around two ideas:
   inspector-driven playback. Skip them when gameplay code can call `JamAudio`
   directly.
 
-### Create A Sound Event
+<details>
+<summary><strong>Create A Sound Event</strong></summary>
 
 Use Sound Events for sound effects, UI sounds, impacts, footsteps, ambience
 loops, and any short reusable sound.
@@ -74,7 +81,10 @@ Create > Jam Audio > Sound Event From Selected Clip(s)
 One clip is completely fine. Multiple clips are useful when you want variation,
 like footsteps, impacts, or repeated UI sounds.
 
-### Play A Sound Without Code
+</details>
+
+<details>
+<summary><strong>Play A Sound Without Code</strong></summary>
 
 Use `JamAudioPlayer` when a GameObject should play a sound from common Unity
 callbacks.
@@ -88,7 +98,10 @@ callbacks.
 Choose `Code or UnityEvent` if this component should only be called by a
 UnityEvent or another script.
 
-### Play A Sound From Code
+</details>
+
+<details>
+<summary><strong>Play A Sound From Code</strong></summary>
 
 You do not need a `JamAudioPlayer` for normal gameplay code. Add a serialized
 Sound Event field and call `JamAudio.Play(...)`.
@@ -120,7 +133,10 @@ For 3D playback at a world position:
 JamAudio.PlayAtPosition(explosionSound, transform.position);
 ```
 
-### Create A Music Event
+</details>
+
+<details>
+<summary><strong>Create A Music Event</strong></summary>
 
 Use Music Events for level music, menu music, combat music, stingers that should
 crossfade, or any longer track controlled by the music manager.
@@ -137,7 +153,10 @@ You can also select one `AudioClip` and choose:
 Create > Jam Audio > Music Event From Selected Clip
 ```
 
-### Play Music Without Code
+</details>
+
+<details>
+<summary><strong>Play Music Without Code</strong></summary>
 
 Use `JamMusicPlayer` when a scene should automatically request music.
 
@@ -148,7 +167,10 @@ Use `JamMusicPlayer` when a scene should automatically request music.
 
 The music manager is created automatically at runtime.
 
-### Play Music From Code
+</details>
+
+<details>
+<summary><strong>Play Music From Code</strong></summary>
 
 ```csharp
 using JamAudioToolkit;
@@ -183,47 +205,62 @@ public class MusicDebugKeys : MonoBehaviour
 }
 ```
 
+</details>
+
 ## Programmer API
 
-### Sounds
+<details>
+<summary><strong>Sounds</strong></summary>
 
 ```csharp
-JamAudio.Play(soundEvent);
-JamAudio.Play(soundEvent, gameObject);
-JamAudio.Play(soundEvent, component);
-JamAudio.Play(soundEvent, transform);
-JamAudio.PlayAtPosition(soundEvent, worldPosition);
+JamAudio.Play(soundEvent); // soundEvent = the Sound Event asset.
+JamAudio.Play(soundEvent, gameObject); // gameObject = play from this GameObject's position.
+JamAudio.Play(soundEvent, component); // component = play from this Component's Transform.
+JamAudio.Play(soundEvent, transform); // transform = play from this Transform's position.
+JamAudio.PlayAtPosition(soundEvent, worldPosition); // worldPosition = exact Vector3 play position.
 ```
 
-### Music
+</details>
+
+<details>
+<summary><strong>Music</strong></summary>
 
 ```csharp
-JamAudio.Play(musicEvent);
-JamAudio.PlayMusic(musicEvent);
-JamAudio.PauseMusic();
-JamAudio.ResumeMusic();
-JamAudio.StopMusic();
+JamAudio.Play(musicEvent); // musicEvent = the Music Event asset.
+JamAudio.PlayMusic(musicEvent); // musicEvent = music to play or crossfade to.
+JamAudio.PauseMusic(); // Uses the current music's fade-out duration.
+JamAudio.ResumeMusic(); // Uses the current music's fade-in duration.
+JamAudio.StopMusic(); // Uses the current music's fade-out duration.
 ```
 
 `JamAudio.Play(musicEvent)` and `JamAudio.PlayMusic(musicEvent)` do the same
 thing. Use whichever reads better in your script.
 
+</details>
+
 ## Common Workflows
 
-### UI Button Click
+<details>
+<summary><strong>UI Button Click</strong></summary>
 
 Create a Sound Event with one click clip. Set positioning to `None - 2D or UI`.
 In a Unity Button `OnClick`, call `JamAudioPlayer.Play()` or call
 `JamAudio.Play(clickSound)` from code.
 
-### Footsteps
+</details>
+
+<details>
+<summary><strong>Footsteps</strong></summary>
 
 Create a Sound Event from several footstep clips. Keep `Randomize Clip` enabled
 and set `Recent Clips To Avoid` to `1` or `2`. Call
 `JamAudio.Play(footstepSound, gameObject)` from the character or animation
 event.
 
-### Explosion Or Impact
+</details>
+
+<details>
+<summary><strong>Explosion Or Impact</strong></summary>
 
 Create a Sound Event, set positioning to `3D GameObject Position`, and call:
 
@@ -231,7 +268,10 @@ Create a Sound Event, set positioning to `3D GameObject Position`, and call:
 JamAudio.PlayAtPosition(explosionSound, hitPoint);
 ```
 
-### Level Music
+</details>
+
+<details>
+<summary><strong>Level Music</strong></summary>
 
 Create a Music Event, assign the track, set fade times, then call:
 
@@ -240,6 +280,8 @@ JamAudio.PlayMusic(levelMusic);
 ```
 
 Changing to another Music Event automatically crossfades.
+
+</details>
 
 ## Units And Controls
 
@@ -256,24 +298,33 @@ Changing to another Music Event automatically crossfades.
 
 ## Troubleshooting
 
-### Nothing Plays
+<details>
+<summary><strong>Nothing Plays</strong></summary>
 
 - Make sure the Sound Event or Music Event has a clip assigned.
 - Runtime playback only works in Play Mode.
 - Check that your Audio Mixer Group is not muted.
 - For 3D sounds, make sure the listener and source are positioned sensibly.
 
-### Trigger Or Collision Sounds Do Not Play
+</details>
+
+<details>
+<summary><strong>Trigger Or Collision Sounds Do Not Play</strong></summary>
 
 - Make sure the GameObject has the needed Collider or Collider2D.
 - For collision callbacks, Unity usually needs a Rigidbody or Rigidbody2D on one
   of the colliding objects.
 - Check the `JamAudioPlayer` preset and callback toggles.
 
-### Do I Need A Jam Audio Player?
+</details>
+
+<details>
+<summary><strong>Do I Need A Jam Audio Player?</strong></summary>
 
 No. `JamAudioPlayer` is for no-code Unity callback workflows. For normal
 gameplay scripts, use `JamAudio.Play(...)` directly.
+
+</details>
 
 ## Unity Version
 
