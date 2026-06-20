@@ -2,7 +2,7 @@
 
 Ridiculously fast Unity audio implementation for game jams.
 
-**Free for all personal and commercial use with no credit required.**
+**Free for personal and commercial Unity projects.**
 
 Jam Audio Toolkit is an easy way to put audio into your Unity games
 without building a whole audio system first. Create reusable sound and music
@@ -11,9 +11,10 @@ events then play them with no-code components or one-line script calls.
 It is called Jam Audio Toolkit because it is built to be fast enough for game
 jams: drag in a clip, make an event, then play it. I made this after spending too many jam hours wiring up basic audio behavior from scratch, like crossfades, filters, pitch/volume randomization, looping, positioning, and scene persistence. 
 
-No scene setup is needed: this works right out of the box. It builds for all
-Unity-supported platforms and is completely Unity-native, with no audio
-middleware required.
+No Jam Audio scene setup is needed: this works right out of the box. Your Unity
+scene still needs one active Audio Listener, usually on the Main Camera, just
+like any other Unity audio setup. It builds for all Unity-supported platforms
+and is completely Unity-native, with no audio middleware required.
 
 ## What It Does
 
@@ -55,6 +56,15 @@ https://github.com/L1Ryx/Jam-Audio-Toolkit.git
 </details>
 
 ## How To Use This Package
+
+First, make sure your scene can hear audio:
+
+- Your scene needs one active `AudioListener`. Unity usually adds this to the
+  `Main Camera` automatically.
+- If Unity warns that there are no audio listeners, choose
+  `GameObject > Jam Audio > Ensure Audio Listener On Main Camera`.
+- Jam Audio Player and Jam Music Player inspectors also show a fix button when
+  the current scene has no active listener.
 
 Jam Audio Toolkit is built around two ideas:
 
@@ -307,9 +317,27 @@ Changing to another Music Event automatically crossfades.
 <summary><strong>Why Is Nothing Playing?</strong></summary>
 
 - Make sure the Sound Event or Music Event has a clip assigned.
+- Make sure the scene has one active `AudioListener`, usually on the
+  `Main Camera`.
 - Runtime playback only works in Play Mode.
 - Check that your Audio Mixer Group is not muted.
 - For 3D sounds, make sure the listener and source are positioned sensibly.
+
+</details>
+
+<details>
+<summary><strong>Why Does Unity Say There Are No Audio Listeners?</strong></summary>
+
+Unity needs one active `AudioListener` in the scene before any audio can be
+heard. Most new Unity scenes already have one on the `Main Camera`. If yours
+does not, choose:
+
+```text
+GameObject > Jam Audio > Ensure Audio Listener On Main Camera
+```
+
+You can also use the fix button shown in Jam Audio Player and Jam Music Player
+inspectors when the current scene has no listener.
 
 </details>
 
@@ -332,12 +360,17 @@ gameplay scripts, use `JamAudio.Play(...)` directly.
 </details>
 
 <details>
-<summary><strong>Can I Use This In Any Project Without Credit?</strong></summary>
+<summary><strong>Can I Use This In Any Project?</strong></summary>
 
 Yes. You can use Jam Audio Toolkit in personal, commercial, jam, student, and
-studio projects. You do not need to credit Jam Audio Toolkit in your game.
+studio projects. The toolkit code is licensed under `0BSD`. Demo music is
+credited separately in `Third-Party Notices.txt`.
 
 </details>
+
+## Special Thanks
+
+Demo music by Patrick Sullivan. Used with permission.
 
 ## Unity Version
 

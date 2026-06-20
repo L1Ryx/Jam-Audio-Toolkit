@@ -63,6 +63,7 @@ namespace JamAudioToolkit.Editor
             serializedObject.ApplyModifiedProperties();
 
             DrawWarnings();
+            JamAudioEditorUtility.DrawAudioListenerWarning();
             DrawRuntimeButtons();
         }
 

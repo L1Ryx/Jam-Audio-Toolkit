@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using JamAudioToolkit;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace JamAudioToolkit.Editor
@@ -114,6 +115,75 @@ namespace JamAudioToolkit.Editor
             }
         }
 
+        public static bool HasActiveAudioListener()
+        {
+            AudioListener[] listeners = FindAudioListeners();
+
+            foreach (AudioListener listener in listeners)
+            {
+                if (listener != null && listener.isActiveAndEnabled)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static AudioListener EnsureAudioListenerOnMainCamera()
+        {
+            AudioListener existingListener = FindActiveAudioListener();
+            if (existingListener != null)
+            {
+                Selection.activeGameObject = existingListener.gameObject;
+                EditorGUIUtility.PingObject(existingListener);
+                return existingListener;
+            }
+
+            Camera targetCamera = Camera.main ?? FindActiveCamera();
+            if (targetCamera == null)
+            {
+                GameObject cameraObject = new GameObject("Main Camera");
+                Undo.RegisterCreatedObjectUndo(cameraObject, "Create Main Camera With Audio Listener");
+                cameraObject.tag = "MainCamera";
+                targetCamera = cameraObject.AddComponent<Camera>();
+            }
+
+            AudioListener listener = targetCamera.GetComponent<AudioListener>();
+            if (listener == null)
+            {
+                listener = Undo.AddComponent<AudioListener>(targetCamera.gameObject);
+            }
+            else if (!listener.enabled)
+            {
+                Undo.RecordObject(listener, "Enable Audio Listener");
+                listener.enabled = true;
+                EditorUtility.SetDirty(listener);
+            }
+
+            Selection.activeGameObject = targetCamera.gameObject;
+            EditorGUIUtility.PingObject(listener);
+            EditorSceneManager.MarkSceneDirty(targetCamera.gameObject.scene);
+            return listener;
+        }
+
+        public static void DrawAudioListenerWarning()
+        {
+            if (HasActiveAudioListener())
+            {
+                return;
+            }
+
+            EditorGUILayout.HelpBox(
+                "This scene has no active Audio Listener. Unity needs one listener, usually on the Main Camera, before audio can be heard.",
+                MessageType.Warning);
+
+            if (GUILayout.Button("Add Audio Listener To Main Camera"))
+            {
+                EnsureAudioListenerOnMainCamera();
+            }
+        }
+
         public static string FormatClipLength(AudioClip clip)
         {
             if (clip == null)
@@ -142,6 +212,46 @@ namespace JamAudioToolkit.Editor
             string combinedPath = $"{folderPath}/{sanitizedName}{extension}";
 
             return AssetDatabase.GenerateUniqueAssetPath(combinedPath);
+        }
+
+        private static AudioListener FindActiveAudioListener()
+        {
+            AudioListener[] listeners = FindAudioListeners();
+
+            foreach (AudioListener listener in listeners)
+            {
+                if (listener != null && listener.isActiveAndEnabled)
+                {
+                    return listener;
+                }
+            }
+
+            return null;
+        }
+
+        private static Camera FindActiveCamera()
+        {
+            Camera[] cameras = FindActiveCameras();
+
+            return cameras.Length > 0 ? cameras[0] : null;
+        }
+
+        private static AudioListener[] FindAudioListeners()
+        {
+#if UNITY_6000_0_OR_NEWER
+            return Object.FindObjectsByType<AudioListener>(FindObjectsInactive.Include);
+#else
+            return Object.FindObjectsByType<AudioListener>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#endif
+        }
+
+        private static Camera[] FindActiveCameras()
+        {
+#if UNITY_6000_0_OR_NEWER
+            return Object.FindObjectsByType<Camera>(FindObjectsInactive.Exclude);
+#else
+            return Object.FindObjectsByType<Camera>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+#endif
         }
 
         private static string GetSelectedFolderPath()
@@ -251,6 +361,18 @@ namespace JamAudioToolkit.Editor
         private static void AddMusicPlayerToSelected()
         {
             JamAudioEditorUtility.AddMusicPlayerToSelectedObjects();
+        }
+
+        [MenuItem("GameObject/Jam Audio/Ensure Audio Listener On Main Camera", false, 40)]
+        private static void EnsureAudioListenerOnMainCamera(MenuCommand command)
+        {
+            JamAudioEditorUtility.EnsureAudioListenerOnMainCamera();
+        }
+
+        [MenuItem("Tools/Jam Audio/Ensure Audio Listener On Main Camera", false, 100)]
+        private static void EnsureAudioListenerOnMainCameraFromToolsMenu()
+        {
+            JamAudioEditorUtility.EnsureAudioListenerOnMainCamera();
         }
     }
 }

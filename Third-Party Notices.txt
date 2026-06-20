@@ -1,0 +1,15 @@
+Third-Party Notices
+
+Demo music tracks:
+
+- Dream Fight Theme.wav
+- Main Menu Theme.wav
+- Tutorial Theme.wav
+
+Music by Patrick Sullivan.
+
+These tracks are included in Jam Audio Toolkit with permission from the rights
+holder for use as demo/sample content in this product.
+
+The Jam Audio Toolkit code is licensed separately under the BSD Zero Clause
+License in LICENSE.
