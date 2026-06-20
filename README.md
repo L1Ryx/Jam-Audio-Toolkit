@@ -378,7 +378,7 @@ After installing the package, open `Window > Package Manager`, select
 Open the imported scene at:
 
 ```text
-Assets/Samples/Jam Audio Toolkit/0.1.0/Quick Demo/Scenes/Quick Demo.unity
+Assets/Samples/Jam Audio Toolkit/1.0.0/Quick Demo/Scenes/Quick Demo.unity
 ```
 
 Press Play, then use the UI buttons to try random SFX, music playback,

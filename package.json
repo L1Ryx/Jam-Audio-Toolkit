@@ -1,6 +1,6 @@
 {
   "name": "com.jamaudiotoolkit.core",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "displayName": "Jam Audio Toolkit",
   "description": "Ridiculously fast Unity audio implementation for game jams.",
   "unity": "2022.3",
