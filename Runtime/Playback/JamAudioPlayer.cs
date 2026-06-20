@@ -14,7 +14,6 @@ namespace JamAudioToolkit
         [FormerlySerializedAs("audioEvent")]
         public JamSoundEvent soundEvent;
 
-        [Header("Lifecycle")]
         [Tooltip("Play during Awake, before most other scene objects have started.")]
         public bool playOnAwake;
         [Tooltip("Play during Start, after scene objects have awakened.")]
@@ -22,7 +21,6 @@ namespace JamAudioToolkit
         [Tooltip("Play each time this GameObject or component is enabled.")]
         public bool playOnEnable;
 
-        [Header("Physics")]
         [Tooltip("Play when a 2D or 3D trigger enters this object.")]
         public bool playOnTriggerEnter;
         [Tooltip("Play when a 2D or 3D trigger exits this object.")]
@@ -30,12 +28,14 @@ namespace JamAudioToolkit
         [Tooltip("Play when a 2D or 3D collision starts on this object.")]
         public bool playOnCollisionEnter;
 
-        [Header("Positioning")]
+        [Tooltip("Use a positioning mode on this component instead of the assigned Sound Event's default.")]
+        [InspectorName("Override Sound Event")]
+        public bool overrideSoundEventPositioning;
+
         [Tooltip("Choose whether playback ignores position or uses this GameObject's 3D position.")]
         [FormerlySerializedAs("use3DPosition")]
         public JamAudioPositionMode positionMode = JamAudioPositionMode.None;
 
-        [Header("Debug")]
         [Tooltip("Controls how the runtime-generated AudioSource appears in the Inspector.")]
         [InspectorName("Show Audio Source")]
         public JamAudioSourceDebugView audioSourceDebugView = JamAudioSourceDebugView.Off;
@@ -217,8 +217,18 @@ namespace JamAudioToolkit
             audioSource.loop = soundEventToPlay.loop;
             audioSource.volume = soundEventToPlay.GetVolume();
             audioSource.pitch = soundEventToPlay.GetPitch();
-            audioSource.spatialBlend = positionMode == JamAudioPositionMode.Position3D ? 1f : 0f;
+            audioSource.spatialBlend = GetPositionMode(soundEventToPlay) == JamAudioPositionMode.Position3D ? 1f : 0f;
             audioSource.outputAudioMixerGroup = soundEventToPlay.outputMixerGroup;
+            JamAudioFilterUtility.Apply(
+                audioSource,
+                soundEventToPlay.GetLowPassFilterAmount(),
+                soundEventToPlay.GetHighPassFilterAmount());
+            ApplyGeneratedAudioSourceVisibility();
+        }
+
+        private JamAudioPositionMode GetPositionMode(JamSoundEvent soundEventToPlay)
+        {
+            return overrideSoundEventPositioning ? positionMode : soundEventToPlay.positionMode;
         }
 
         private void ApplyGeneratedAudioSourceVisibility()
@@ -234,6 +244,16 @@ namespace JamAudioToolkit
                 JamAudioSourceDebugView.EditableAtRuntime => HideFlags.None,
                 _ => HideFlags.NotEditable
             };
+
+            if (audioSource.TryGetComponent(out AudioLowPassFilter lowPassFilter))
+            {
+                lowPassFilter.hideFlags = audioSource.hideFlags;
+            }
+
+            if (audioSource.TryGetComponent(out AudioHighPassFilter highPassFilter))
+            {
+                highPassFilter.hideFlags = audioSource.hideFlags;
+            }
         }
     }
 }

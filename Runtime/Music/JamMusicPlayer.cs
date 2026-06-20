@@ -41,13 +41,7 @@ namespace JamAudioToolkit
                 return;
             }
 
-            JamMusicManager manager = JamMusicManager.Instance;
-            if (manager == null)
-            {
-                return;
-            }
-
-            manager.PlayMusic(musicEvent);
+            JamAudio.PlayMusic(musicEvent);
         }
 
         /// <summary>
@@ -61,13 +55,35 @@ namespace JamAudioToolkit
                 return;
             }
 
-            JamMusicManager manager = JamMusicManager.Instance;
-            if (manager == null)
+            JamAudio.StopMusic();
+        }
+
+        /// <summary>
+        /// Requests that the current music fade out and pause.
+        /// </summary>
+        [ContextMenu("Pause")]
+        public void Pause()
+        {
+            if (!Application.isPlaying)
             {
                 return;
             }
 
-            manager.StopMusic();
+            JamAudio.PauseMusic();
+        }
+
+        /// <summary>
+        /// Requests that paused music fade back in and resume.
+        /// </summary>
+        [ContextMenu("Resume")]
+        public void Resume()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            JamAudio.ResumeMusic();
         }
     }
 }

@@ -53,6 +53,20 @@ namespace JamAudioToolkit.Editor
         }
 
         /// <summary>
+        /// Previews a single clip directly from editor tooling.
+        /// </summary>
+        public static void PreviewClip(AudioClip clip, bool loop = false)
+        {
+            if (clip == null)
+            {
+                Debug.LogWarning("Cannot preview a missing AudioClip.");
+                return;
+            }
+
+            PlayPreviewClip(clip, loop);
+        }
+
+        /// <summary>
         /// Stops any active editor audio preview clip.
         /// </summary>
         public static void StopPreview()

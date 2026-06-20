@@ -18,6 +18,7 @@ namespace JamAudioToolkit
         private AudioSource inactiveSource;
         private JamMusicEvent currentMusicEvent;
         private Coroutine transitionCoroutine;
+        private bool musicIsPaused;
 
         /// <summary>
         /// Gets the active music manager, creating one if needed during Play Mode.
@@ -53,6 +54,11 @@ namespace JamAudioToolkit
         /// </summary>
         public JamMusicEvent CurrentMusicEvent => currentMusicEvent;
 
+        /// <summary>
+        /// True when the current music is paused.
+        /// </summary>
+        public bool IsPaused => musicIsPaused;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticState()
         {
@@ -63,7 +69,7 @@ namespace JamAudioToolkit
         private static JamMusicManager FindExistingManager()
         {
 #if UNITY_2023_1_OR_NEWER
-            return Object.FindFirstObjectByType<JamMusicManager>();
+            return Object.FindAnyObjectByType<JamMusicManager>();
 #else
             return Object.FindObjectOfType<JamMusicManager>();
 #endif
@@ -131,6 +137,7 @@ namespace JamAudioToolkit
 
             StopTransitionCoroutine();
             currentMusicEvent = musicEvent;
+            musicIsPaused = false;
             transitionCoroutine = StartCoroutine(TransitionToMusic(musicEvent));
         }
 
@@ -151,8 +158,69 @@ namespace JamAudioToolkit
                 ? Mathf.Max(0f, fadeOutOverride)
                 : (currentMusicEvent != null ? currentMusicEvent.GetFadeOutDuration() : 0f);
 
+            musicIsPaused = false;
             currentMusicEvent = null;
             transitionCoroutine = StartCoroutine(StopAllMusic(fadeOutDuration));
+        }
+
+        /// <summary>
+        /// Pauses the current music, fading out unless the duration is zero.
+        /// </summary>
+        public void PauseMusic(float fadeOutOverride = -1f)
+        {
+            if (!Application.isPlaying || currentMusicEvent == null || musicIsPaused)
+            {
+                return;
+            }
+
+            EnsureSources();
+            StopTransitionCoroutine();
+
+            AudioSource sourceToPause = GetCurrentMusicSource();
+            if (sourceToPause == null || sourceToPause.clip == null)
+            {
+                return;
+            }
+
+            MakeActiveSource(sourceToPause);
+            StopAndClear(inactiveSource);
+
+            float fadeOutDuration = fadeOutOverride >= 0f
+                ? Mathf.Max(0f, fadeOutOverride)
+                : currentMusicEvent.GetFadeOutDuration();
+
+            transitionCoroutine = StartCoroutine(PauseCurrentMusic(activeSource, fadeOutDuration));
+        }
+
+        /// <summary>
+        /// Resumes paused music, fading in unless the duration is zero.
+        /// </summary>
+        public void ResumeMusic(float fadeInOverride = -1f)
+        {
+            if (!Application.isPlaying || currentMusicEvent == null || !musicIsPaused)
+            {
+                return;
+            }
+
+            EnsureSources();
+            StopTransitionCoroutine();
+
+            AudioSource sourceToResume = GetCurrentMusicSource();
+            if (sourceToResume == null || sourceToResume.clip == null)
+            {
+                musicIsPaused = false;
+                PlayMusic(currentMusicEvent);
+                return;
+            }
+
+            MakeActiveSource(sourceToResume);
+            StopAndClear(inactiveSource);
+
+            float fadeInDuration = fadeInOverride >= 0f
+                ? Mathf.Max(0f, fadeInOverride)
+                : currentMusicEvent.GetFadeInDuration();
+
+            transitionCoroutine = StartCoroutine(ResumeCurrentMusic(activeSource, fadeInDuration));
         }
 
         private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -223,6 +291,7 @@ namespace JamAudioToolkit
             {
                 StopAndClear(firstSource);
                 StopAndClear(secondSource);
+                musicIsPaused = false;
                 currentMusicEvent = null;
                 transitionCoroutine = null;
                 yield break;
@@ -249,7 +318,63 @@ namespace JamAudioToolkit
 
             StopAndClear(firstSource);
             StopAndClear(secondSource);
+            musicIsPaused = false;
             currentMusicEvent = null;
+            transitionCoroutine = null;
+        }
+
+        private IEnumerator PauseCurrentMusic(AudioSource source, float fadeOutDuration)
+        {
+            musicIsPaused = true;
+
+            if (fadeOutDuration <= 0f)
+            {
+                source.volume = 0f;
+                source.Pause();
+                transitionCoroutine = null;
+                yield break;
+            }
+
+            float startVolume = source.volume;
+            float elapsed = 0f;
+
+            while (elapsed < fadeOutDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                source.volume = Mathf.Lerp(startVolume, 0f, Mathf.Clamp01(elapsed / fadeOutDuration));
+                yield return null;
+            }
+
+            source.volume = 0f;
+            source.Pause();
+            transitionCoroutine = null;
+        }
+
+        private IEnumerator ResumeCurrentMusic(AudioSource source, float fadeInDuration)
+        {
+            musicIsPaused = false;
+            source.UnPause();
+
+            float targetVolume = currentMusicEvent.GetVolume();
+
+            if (fadeInDuration <= 0f)
+            {
+                source.volume = targetVolume;
+                transitionCoroutine = null;
+                yield break;
+            }
+
+            float startVolume = source.volume;
+            float elapsed = 0f;
+
+            while (elapsed < fadeInDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                source.volume = Mathf.Lerp(startVolume, targetVolume, Mathf.Clamp01(elapsed / fadeInDuration));
+                yield return null;
+            }
+
+            source.volume = targetVolume;
             transitionCoroutine = null;
         }
 
@@ -287,6 +412,10 @@ namespace JamAudioToolkit
             source.pitch = 1f;
             source.spatialBlend = 0f;
             source.outputAudioMixerGroup = musicEvent.outputMixerGroup;
+            JamAudioFilterUtility.Apply(
+                source,
+                musicEvent.GetLowPassFilterAmount(),
+                musicEvent.GetHighPassFilterAmount());
         }
 
         private void SwapSources()
@@ -296,12 +425,48 @@ namespace JamAudioToolkit
             inactiveSource = previousActiveSource;
         }
 
+        private AudioSource GetCurrentMusicSource()
+        {
+            AudioClip currentClip = currentMusicEvent != null ? currentMusicEvent.musicClip : null;
+
+            if (currentClip != null)
+            {
+                if (activeSource.clip == currentClip)
+                {
+                    return activeSource;
+                }
+
+                if (inactiveSource.clip == currentClip)
+                {
+                    return inactiveSource;
+                }
+            }
+
+            if (activeSource.clip != null)
+            {
+                return activeSource;
+            }
+
+            return inactiveSource.clip != null ? inactiveSource : null;
+        }
+
+        private void MakeActiveSource(AudioSource source)
+        {
+            if (source == activeSource)
+            {
+                return;
+            }
+
+            SwapSources();
+        }
+
         private void StopAndClear(AudioSource source)
         {
             source.Stop();
             source.clip = null;
             source.volume = 0f;
             source.outputAudioMixerGroup = null;
+            JamAudioFilterUtility.Clear(source);
         }
 
         private void StopTransitionCoroutine()

@@ -8,45 +8,54 @@ namespace JamAudioToolkit
     /// <summary>
     /// Defines reusable playback settings for a sound effect or ambience clip.
     /// </summary>
-    [CreateAssetMenu(menuName = "Jam Audio Toolkit/Sound Event", fileName = "New Jam Sound Event")]
+    [CreateAssetMenu(menuName = "Jam Audio/Empty Sound Event", fileName = "Empty Sound Event", order = 200)]
     public class JamSoundEvent : ScriptableObject
     {
-        [Header("Clips")]
-        [Tooltip("One or more clips this event can choose from when played.")]
+        [Tooltip("One or more clips this event can choose from when played. One clip is perfectly fine.")]
+        [InspectorName("Clip(s)")]
         public AudioClip[] clips;
 
-        [Header("Playback")]
-        [Tooltip("Base playback volume using Unity's linear 0-1 AudioSource volume scale. This is not dB.")]
-        [InspectorName("Volume (0-1)")]
-        [Range(0f, 1f)] public float volume = 1f;
+        [Tooltip("Base playback volume shown as 0-100%. This is converted to Unity's linear 0-1 AudioSource volume scale, not dB.")]
+        [InspectorName("Volume (%)")]
+        [JamPercent(0f, 100f)] public float volume = 1f;
 
-        [Tooltip("Base playback pitch using Unity's AudioSource pitch multiplier. 1 is normal pitch/speed.")]
-        [InspectorName("Pitch (x)")]
-        [Range(-3f, 3f)] public float pitch = 1f;
+        [Tooltip("Base playback pitch shown as a percentage. 100% is normal pitch/speed.")]
+        [InspectorName("Pitch (%)")]
+        [JamPercent(0f, 300f)] public float pitch = 1f;
 
         [Tooltip("When enabled, this event loops until its AudioSource is stopped.")]
         public bool loop;
 
-        [Header("Randomization")]
-        [Tooltip("Random linear volume offset added to Volume. Example: -0.1 to 0.1 varies Unity volume by +/- 0.1.")]
-        [InspectorName("Volume Variation (+/- 0-1)")]
-        [JamMinMax]
+        [Tooltip("0% is clear and unfiltered. Higher values remove more high frequencies, making the sound darker or more muffled.")]
+        [InspectorName("Low-Pass Filter (%)")]
+        [JamPercent(0f, 100f)] public float lowPassFilterAmount;
+
+        [Tooltip("0% is full and unfiltered. Higher values remove more low frequencies, making the sound thinner or more radio-like.")]
+        [InspectorName("High-Pass Filter (%)")]
+        [JamPercent(0f, 100f)] public float highPassFilterAmount;
+
+        [Tooltip("Default positioning for this sound when it is played.")]
+        [InspectorName("Positioning")]
+        public JamAudioPositionMode positionMode = JamAudioPositionMode.None;
+
+        [Tooltip("Random percentage variation around Volume. Min lowers volume, Max raises volume.")]
+        [InspectorName("Volume Variation (%)")]
+        [JamMinMax(true)]
         public Vector2 volumeRandomRange = Vector2.zero;
 
-        [Tooltip("Random Unity pitch multiplier offset added to Pitch. Example: -0.05 to 0.05 varies pitch around 1 by +/- 0.05.")]
-        [InspectorName("Pitch Variation (+/- x)")]
-        [JamMinMax]
+        [Tooltip("Random percentage variation around Pitch. Min lowers pitch, Max raises pitch.")]
+        [InspectorName("Pitch Variation (%)")]
+        [JamMinMax(true)]
         public Vector2 pitchRandomRange = Vector2.zero;
 
         [Tooltip("Choose a random clip each time this event plays.")]
         public bool randomizeClip = true;
 
-        [Tooltip("Avoid choosing any of the last N played clips when possible. Set to 0 to allow immediate repeats.")]
-        [InspectorName("Avoid Last N Clips")]
+        [Tooltip("How many recently played clips should be skipped when possible. Set to 0 to allow immediate repeats.")]
+        [InspectorName("Recent Clips To Avoid")]
         [FormerlySerializedAs("preventImmediateRepeat")]
         [Min(0)] public int avoidRepeatingLastClips = 1;
 
-        [Header("Routing")]
         [Tooltip("Optional mixer group. Leave empty to use the default audio output.")]
         public AudioMixerGroup outputMixerGroup;
 
@@ -96,7 +105,23 @@ namespace JamAudioToolkit
         /// </summary>
         public float GetPitch()
         {
-            return Mathf.Clamp(pitch + GetRandomOffset(pitchRandomRange), -3f, 3f);
+            return Mathf.Clamp(pitch + GetRandomOffset(pitchRandomRange), 0f, 3f);
+        }
+
+        /// <summary>
+        /// Returns the low-pass filter amount, where 0 is off and 1 is strongest.
+        /// </summary>
+        public float GetLowPassFilterAmount()
+        {
+            return Mathf.Clamp01(lowPassFilterAmount);
+        }
+
+        /// <summary>
+        /// Returns the high-pass filter amount, where 0 is off and 1 is strongest.
+        /// </summary>
+        public float GetHighPassFilterAmount()
+        {
+            return Mathf.Clamp01(highPassFilterAmount);
         }
 
         private int GetClipIndex()
