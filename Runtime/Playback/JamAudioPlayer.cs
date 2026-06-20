@@ -4,14 +4,15 @@ using UnityEngine.Serialization;
 namespace JamAudioToolkit
 {
     /// <summary>
-    /// Plays a JamAudioEvent from a GameObject using Unity lifecycle and physics callbacks.
+    /// Plays a JamSoundEvent from a GameObject using Unity lifecycle and physics callbacks.
     /// </summary>
     [AddComponentMenu("Jam Audio Toolkit/Jam Audio Player")]
     [DisallowMultipleComponent]
     public class JamAudioPlayer : MonoBehaviour
     {
-        [Tooltip("The audio event this component will play.")]
-        public JamAudioEvent audioEvent;
+        [Tooltip("The sound event this component will play.")]
+        [FormerlySerializedAs("audioEvent")]
+        public JamSoundEvent soundEvent;
 
         [Header("Lifecycle")]
         [Tooltip("Play during Awake, before most other scene objects have started.")]
@@ -77,10 +78,18 @@ namespace JamAudioToolkit
         }
 
         /// <summary>
-        /// Plays the assigned audio event using this GameObject's AudioSource.
+        /// Plays the assigned sound event using this GameObject's AudioSource.
         /// </summary>
         [ContextMenu("Play")]
         public void Play()
+        {
+            Play(soundEvent);
+        }
+
+        /// <summary>
+        /// Plays a specific sound event using this GameObject's AudioSource.
+        /// </summary>
+        public void Play(JamSoundEvent soundEventToPlay)
         {
             if (!Application.isPlaying)
             {
@@ -88,29 +97,37 @@ namespace JamAudioToolkit
                 return;
             }
 
-            if (audioEvent == null)
+            if (soundEventToPlay == null)
             {
-                Debug.LogWarning($"{name} has no Jam Audio Event assigned.", this);
+                Debug.LogWarning($"{name} has no Jam Sound Event assigned.", this);
                 return;
             }
 
-            AudioClip clip = audioEvent.GetClip();
+            AudioClip clip = soundEventToPlay.GetClip();
             if (clip == null)
             {
                 return;
             }
 
             EnsureAudioSource();
-            ConfigureAudioSource(clip);
+            ConfigureAudioSource(soundEventToPlay, clip);
 
-            if (audioEvent.loop)
+            if (soundEventToPlay.loop)
             {
                 audioSource.clip = clip;
                 audioSource.Play();
                 return;
             }
 
-            audioSource.PlayOneShot(clip, audioSource.volume);
+            audioSource.PlayOneShot(clip);
+        }
+
+        /// <summary>
+        /// Plays a specific sound event. This named wrapper is convenient for UnityEvent wiring.
+        /// </summary>
+        public void PlaySound(JamSoundEvent soundEventToPlay)
+        {
+            Play(soundEventToPlay);
         }
 
         /// <summary>
@@ -192,16 +209,16 @@ namespace JamAudioToolkit
             ApplyGeneratedAudioSourceVisibility();
         }
 
-        private void ConfigureAudioSource(AudioClip clip)
+        private void ConfigureAudioSource(JamSoundEvent soundEventToPlay, AudioClip clip)
         {
             ApplyGeneratedAudioSourceVisibility();
 
-            audioSource.clip = audioEvent.loop ? clip : null;
-            audioSource.loop = audioEvent.loop;
-            audioSource.volume = audioEvent.GetVolume();
-            audioSource.pitch = audioEvent.GetPitch();
+            audioSource.clip = soundEventToPlay.loop ? clip : null;
+            audioSource.loop = soundEventToPlay.loop;
+            audioSource.volume = soundEventToPlay.GetVolume();
+            audioSource.pitch = soundEventToPlay.GetPitch();
             audioSource.spatialBlend = positionMode == JamAudioPositionMode.Position3D ? 1f : 0f;
-            audioSource.outputAudioMixerGroup = audioEvent.outputMixerGroup;
+            audioSource.outputAudioMixerGroup = soundEventToPlay.outputMixerGroup;
         }
 
         private void ApplyGeneratedAudioSourceVisibility()

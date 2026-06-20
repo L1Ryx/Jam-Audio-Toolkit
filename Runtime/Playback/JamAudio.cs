@@ -5,45 +5,45 @@ using UnityEngine;
 namespace JamAudioToolkit
 {
     /// <summary>
-    /// Static convenience API for playing JamAudioEvents from code.
+    /// Static convenience API for playing JamSoundEvents from code.
     /// </summary>
     public static class JamAudio
     {
         private static JamAudioSourcePool pool;
 
         /// <summary>
-        /// Plays an audio event as a non-positional sound.
+        /// Plays a sound event as a non-positional sound.
         /// </summary>
         /// <returns>The AudioSource used for playback, or null if playback could not start.</returns>
-        public static AudioSource Play(JamAudioEvent audioEvent)
+        public static AudioSource Play(JamSoundEvent soundEvent)
         {
-            return PlayInternal(audioEvent, Vector3.zero, false);
+            return PlayInternal(soundEvent, Vector3.zero, false);
         }
 
         /// <summary>
-        /// Plays an audio event at a world position.
+        /// Plays a sound event at a world position.
         /// </summary>
         /// <returns>The AudioSource used for playback, or null if playback could not start.</returns>
-        public static AudioSource PlayAtPosition(JamAudioEvent audioEvent, Vector3 position)
+        public static AudioSource PlayAtPosition(JamSoundEvent soundEvent, Vector3 position)
         {
-            return PlayInternal(audioEvent, position, true);
+            return PlayInternal(soundEvent, position, true);
         }
 
-        private static AudioSource PlayInternal(JamAudioEvent audioEvent, Vector3 position, bool use3DPosition)
+        private static AudioSource PlayInternal(JamSoundEvent soundEvent, Vector3 position, bool use3DPosition)
         {
-            if (audioEvent == null)
+            if (soundEvent == null)
             {
-                Debug.LogWarning("Cannot play a missing Jam Audio Event.");
+                Debug.LogWarning("Cannot play a missing Jam Sound Event.");
                 return null;
             }
 
-            AudioClip clip = audioEvent.GetClip();
+            AudioClip clip = soundEvent.GetClip();
             if (clip == null)
             {
                 return null;
             }
 
-            return GetPool().Play(audioEvent, clip, position, use3DPosition);
+            return GetPool().Play(soundEvent, clip, position, use3DPosition);
         }
 
         private static JamAudioSourcePool GetPool()
@@ -66,15 +66,15 @@ namespace JamAudioToolkit
         private readonly Stack<AudioSource> availableSources = new Stack<AudioSource>();
         private readonly HashSet<AudioSource> activeSources = new HashSet<AudioSource>();
 
-        public AudioSource Play(JamAudioEvent audioEvent, AudioClip clip, Vector3 position, bool use3DPosition)
+        public AudioSource Play(JamSoundEvent soundEvent, AudioClip clip, Vector3 position, bool use3DPosition)
         {
             AudioSource source = GetSource();
-            ConfigureSource(source, audioEvent, clip, position, use3DPosition);
+            ConfigureSource(source, soundEvent, clip, position, use3DPosition);
 
             activeSources.Add(source);
             source.Play();
 
-            if (audioEvent.loop)
+            if (soundEvent.loop)
             {
                 StartCoroutine(ReleaseWhenStopped(source));
             }
@@ -108,7 +108,7 @@ namespace JamAudioToolkit
 
         private static void ConfigureSource(
             AudioSource source,
-            JamAudioEvent audioEvent,
+            JamSoundEvent soundEvent,
             AudioClip clip,
             Vector3 position,
             bool use3DPosition)
@@ -116,11 +116,11 @@ namespace JamAudioToolkit
             source.gameObject.SetActive(true);
             source.transform.position = position;
             source.clip = clip;
-            source.loop = audioEvent.loop;
-            source.volume = audioEvent.GetVolume();
-            source.pitch = audioEvent.GetPitch();
+            source.loop = soundEvent.loop;
+            source.volume = soundEvent.GetVolume();
+            source.pitch = soundEvent.GetPitch();
             source.spatialBlend = use3DPosition ? 1f : 0f;
-            source.outputAudioMixerGroup = audioEvent.outputMixerGroup;
+            source.outputAudioMixerGroup = soundEvent.outputMixerGroup;
         }
 
         private IEnumerator ReleaseAfterClip(AudioSource source, float clipLength, float pitch)
