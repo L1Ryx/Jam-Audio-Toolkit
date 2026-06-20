@@ -57,20 +57,6 @@ https://github.com/L1Ryx/Jam-Audio-Toolkit.git
 
 </details>
 
-## Try The Quick Demo
-
-After installing the package, open `Window > Package Manager`, select
-`Jam Audio Toolkit`, expand `Samples`, and import `Quick Demo`.
-
-Open the imported scene at:
-
-```text
-Assets/Samples/Jam Audio Toolkit/0.1.0/Quick Demo/Scenes/Quick Demo.unity
-```
-
-Press Play, then use the UI buttons to try random SFX, music playback,
-crossfades, pause, resume, and stop.
-
 ## How To Use This Package
 
 First, make sure your scene can hear audio:
@@ -383,6 +369,20 @@ studio projects. The toolkit code is licensed under `0BSD`. Demo music is
 credited separately in `Third-Party Notices.txt`.
 
 </details>
+
+## Try The Quick Demo
+
+After installing the package, open `Window > Package Manager`, select
+`Jam Audio Toolkit`, expand `Samples`, and import `Quick Demo`.
+
+Open the imported scene at:
+
+```text
+Assets/Samples/Jam Audio Toolkit/0.1.0/Quick Demo/Scenes/Quick Demo.unity
+```
+
+Press Play, then use the UI buttons to try random SFX, music playback,
+crossfades, pause, resume, and stop.
 
 ## Special Thanks
 
