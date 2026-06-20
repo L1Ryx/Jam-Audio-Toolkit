@@ -1,4 +1,4 @@
-# Jam Audio Toolkit
+# Jam Audio Toolkit v1.0.0
 
 Ridiculously fast Unity audio implementation for game jams.
 
@@ -32,8 +32,9 @@ and is completely Unity-native, with no audio middleware required.
 ## Current Status
 
 The core runtime, editor inspectors, Jam Audio Players, static API, music
-manager, and Quick Demo sample are operational. Fuller release polish is still
-in progress.
+manager, and Quick Demo sample are operational. 
+
+More features are on the way! All feedback is welcome. Submit them [here](mailto:shawnguo.dev@gmail.com).
 
 ## Installation
 
