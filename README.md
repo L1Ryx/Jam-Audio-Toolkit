@@ -2,7 +2,7 @@
 
 Ridiculously fast Unity audio implementation for game jams.
 
-**Free for all personal and commercial use. No credit required.**
+**Free for all personal and commercial use with no credit required.**
 
 Jam Audio Toolkit is an easy way to put audio into your Unity games
 without building a whole audio system first. Create reusable sound and music
