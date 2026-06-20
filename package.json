@@ -12,5 +12,12 @@
     "game-jam",
     "music",
     "sfx"
+  ],
+  "samples": [
+    {
+      "displayName": "Quick Demo",
+      "description": "A small no-code Unity UI scene showing random sound effects, music playback, pause, resume, stop, and crossfades.",
+      "path": "Samples~/Quick Demo"
+    }
   ]
 }

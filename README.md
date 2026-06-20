@@ -31,7 +31,9 @@ and is completely Unity-native, with no audio middleware required.
 
 ## Current Status
 
-The core runtime, editor inspectors, preview buttons, Jam Audio Players, static API, and music manager are operational. Sample scenes and fuller release polish are still in progress.
+The core runtime, editor inspectors, preview buttons, Jam Audio Players, static
+API, music manager, and Quick Demo sample are operational. Fuller release polish
+is still in progress.
 
 ## Installation
 
@@ -54,6 +56,20 @@ https://github.com/L1Ryx/Jam-Audio-Toolkit.git
 ```
 
 </details>
+
+## Try The Quick Demo
+
+After installing the package, open `Window > Package Manager`, select
+`Jam Audio Toolkit`, expand `Samples`, and import `Quick Demo`.
+
+Open the imported scene at:
+
+```text
+Assets/Samples/Jam Audio Toolkit/0.1.0/Quick Demo/Scenes/Quick Demo.unity
+```
+
+Press Play, then use the UI buttons to try random SFX, music playback,
+crossfades, pause, resume, and stop.
 
 ## How To Use This Package
 
