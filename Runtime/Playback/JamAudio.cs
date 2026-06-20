@@ -9,8 +9,6 @@ namespace JamAudioToolkit
     /// </summary>
     public static class JamAudio
     {
-        private static JamAudioSourcePool pool;
-
         /// <summary>
         /// Plays a sound event using its default positioning.
         /// </summary>
@@ -76,7 +74,7 @@ namespace JamAudioToolkit
         /// </summary>
         public static void PlayMusic(JamMusicEvent musicEvent)
         {
-            JamMusicManager manager = JamMusicManager.Instance;
+            JamMusicManager manager = JamMusicManager.GetOrCreate();
             if (manager == null)
             {
                 return;
@@ -98,7 +96,7 @@ namespace JamAudioToolkit
         /// </summary>
         public static void StopMusic(float fadeOutSeconds)
         {
-            JamMusicManager manager = JamMusicManager.Instance;
+            JamMusicManager manager = JamMusicManager.GetOrCreate();
             if (manager == null)
             {
                 return;
@@ -120,7 +118,7 @@ namespace JamAudioToolkit
         /// </summary>
         public static void PauseMusic(float fadeOutSeconds)
         {
-            JamMusicManager manager = JamMusicManager.Instance;
+            JamMusicManager manager = JamMusicManager.GetOrCreate();
             if (manager == null)
             {
                 return;
@@ -142,7 +140,7 @@ namespace JamAudioToolkit
         /// </summary>
         public static void ResumeMusic(float fadeInSeconds)
         {
-            JamMusicManager manager = JamMusicManager.Instance;
+            JamMusicManager manager = JamMusicManager.GetOrCreate();
             if (manager == null)
             {
                 return;
@@ -170,16 +168,25 @@ namespace JamAudioToolkit
 
         private static JamAudioSourcePool GetPool()
         {
-            if (pool != null)
+            JamAudioSourcePool existingPool = FindExistingPool();
+            if (existingPool != null)
             {
-                return pool;
+                return existingPool;
             }
 
             GameObject poolObject = new GameObject("Jam Audio Runtime");
             Object.DontDestroyOnLoad(poolObject);
 
-            pool = poolObject.AddComponent<JamAudioSourcePool>();
-            return pool;
+            return poolObject.AddComponent<JamAudioSourcePool>();
+        }
+
+        private static JamAudioSourcePool FindExistingPool()
+        {
+#if UNITY_2023_1_OR_NEWER
+            return Object.FindAnyObjectByType<JamAudioSourcePool>();
+#else
+            return Object.FindObjectOfType<JamAudioSourcePool>();
+#endif
         }
     }
 

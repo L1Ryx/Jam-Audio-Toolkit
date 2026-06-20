@@ -11,9 +11,6 @@ namespace JamAudioToolkit
     [DisallowMultipleComponent]
     public class JamMusicManager : MonoBehaviour
     {
-        private static JamMusicManager instance;
-        private static bool applicationIsQuitting;
-
         private AudioSource activeSource;
         private AudioSource inactiveSource;
         private JamMusicEvent currentMusicEvent;
@@ -23,30 +20,21 @@ namespace JamAudioToolkit
         /// <summary>
         /// Gets the active music manager, creating one if needed during Play Mode.
         /// </summary>
-        public static JamMusicManager Instance
+        internal static JamMusicManager GetOrCreate()
         {
-            get
+            if (!Application.isPlaying)
             {
-                if (instance != null)
-                {
-                    return instance;
-                }
-
-                if (applicationIsQuitting)
-                {
-                    return null;
-                }
-
-                instance = FindExistingManager();
-                if (instance != null)
-                {
-                    return instance;
-                }
-
-                GameObject managerObject = new GameObject("Jam Music Manager");
-                instance = managerObject.AddComponent<JamMusicManager>();
-                return instance;
+                return null;
             }
+
+            JamMusicManager manager = FindExistingManager();
+            if (manager != null)
+            {
+                return manager;
+            }
+
+            GameObject managerObject = new GameObject("Jam Music Manager");
+            return managerObject.AddComponent<JamMusicManager>();
         }
 
         /// <summary>
@@ -59,13 +47,6 @@ namespace JamAudioToolkit
         /// </summary>
         public bool IsPaused => musicIsPaused;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStaticState()
-        {
-            instance = null;
-            applicationIsQuitting = false;
-        }
-
         private static JamMusicManager FindExistingManager()
         {
 #if UNITY_2023_1_OR_NEWER
@@ -77,13 +58,12 @@ namespace JamAudioToolkit
 
         private void Awake()
         {
-            if (instance != null && instance != this)
+            if (HasOtherManagerInScene())
             {
                 Destroy(gameObject);
                 return;
             }
 
-            instance = this;
             DontDestroyOnLoad(gameObject);
             EnsureSources();
             SceneManager.sceneLoaded += HandleSceneLoaded;
@@ -91,18 +71,7 @@ namespace JamAudioToolkit
 
         private void OnDestroy()
         {
-            if (instance != this)
-            {
-                return;
-            }
-
             SceneManager.sceneLoaded -= HandleSceneLoaded;
-            instance = null;
-        }
-
-        private void OnApplicationQuit()
-        {
-            applicationIsQuitting = true;
         }
 
         /// <summary>
@@ -478,6 +447,27 @@ namespace JamAudioToolkit
 
             StopCoroutine(transitionCoroutine);
             transitionCoroutine = null;
+        }
+
+        private bool HasOtherManagerInScene()
+        {
+#if UNITY_6000_0_OR_NEWER
+            JamMusicManager[] managers = Object.FindObjectsByType<JamMusicManager>(FindObjectsInactive.Include);
+#else
+            JamMusicManager[] managers = Object.FindObjectsByType<JamMusicManager>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+#endif
+
+            foreach (JamMusicManager manager in managers)
+            {
+                if (manager != null && manager != this)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

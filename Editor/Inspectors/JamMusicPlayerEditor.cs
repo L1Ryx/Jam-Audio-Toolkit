@@ -13,7 +13,7 @@ namespace JamAudioToolkit.Editor
         private const int PresetOnStart = 0;
         private const int PresetCodeOrUnityEvent = 1;
 
-        private static readonly string[] PlaybackPresetLabels =
+        private readonly string[] playbackPresetLabels =
         {
             "Play On Start",
             "Code or UnityEvent"
@@ -95,7 +95,7 @@ namespace JamAudioToolkit.Editor
             int selectedPreset = EditorGUILayout.Popup(
                 new GUIContent("Preset", "Choose a common music playback setup."),
                 currentPreset,
-                PlaybackPresetLabels);
+                playbackPresetLabels);
 
             if (selectedPreset != currentPreset)
             {

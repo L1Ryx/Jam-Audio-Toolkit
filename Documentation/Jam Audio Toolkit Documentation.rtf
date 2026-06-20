@@ -1,0 +1,107 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+\f0\fs24
+\b Jam Audio Toolkit Documentation\b0\par
+Ridiculously fast Unity audio implementation for game jams.\par
+\par
+Free for personal and commercial Unity projects.\par
+\par
+\b Table of Contents\b0\par
+1. Overview\par
+2. Requirements\par
+3. Installation\par
+4. Quick Demo\par
+5. Creating Sound Events\par
+6. Creating Music Events\par
+7. No-Code Playback\par
+8. Programmer API\par
+9. Controls and Units\par
+10. Troubleshooting\par
+11. Licensing and Third-Party Notices\par
+\par
+\b 1. Overview\b0\par
+Jam Audio Toolkit helps Unity users add practical game audio quickly without
+building a custom audio system first. It provides reusable Sound Event and
+Music Event assets, no-code Jam Audio Player components, music crossfades,
+filters, pitch and volume variation, 2D or 3D positioning, and simple script
+calls through JamAudio.\par
+\par
+\b 2. Requirements\b0\par
+Unity 2022.3 LTS or newer is recommended. Each scene that plays audio needs
+one active AudioListener, usually on the Main Camera. If a scene has no
+AudioListener, use GameObject > Jam Audio > Ensure Audio Listener On Main
+Camera.\par
+\par
+\b 3. Installation\b0\par
+Install Jam Audio Toolkit from the Unity Asset Store or through Unity Package
+Manager. After installation, create Jam Audio assets from Create > Jam Audio or
+use the GameObject > Jam Audio menu to add no-code scene helper components.\par
+\par
+\b 4. Quick Demo\b0\par
+Open Window > Package Manager, select Jam Audio Toolkit, expand Samples, and
+import Quick Demo. Open the imported Quick Demo scene, press Play, then use the
+UI buttons to test random sound effects, music playback, crossfades, pause,
+resume, and stop.\par
+\par
+\b 5. Creating Sound Events\b0\par
+Use Sound Events for sound effects, UI sounds, impacts, footsteps, ambience,
+and loops. Right-click in the Project window and choose Create > Jam Audio >
+Empty Sound Event. Add one or more clips to Clip(s), then adjust Volume (%),
+Pitch (%), filters, positioning, and randomization settings.\par
+\par
+You can also select one or more AudioClip assets and choose Create > Jam Audio
+> Sound Event From Selected Clip(s). One clip is fine. Multiple clips are useful
+for variation such as footsteps, impacts, or repeated UI sounds.\par
+\par
+\b 6. Creating Music Events\b0\par
+Use Music Events for menu music, level music, combat music, and tracks that
+should fade or crossfade. Right-click in the Project window and choose Create >
+Jam Audio > Empty Music Event. Assign a music clip, then set Volume (%), Loop,
+Persist Across Scenes, filters, and Fade In/Fade Out durations.\par
+\par
+\b 7. No-Code Playback\b0\par
+Use Jam Audio Player when a GameObject should play a Sound Event from common
+Unity callbacks such as Start, OnEnable, Trigger Enter, or Collision Enter.
+Use Jam Music Player when a scene object should request music automatically or
+from a UnityEvent. Jam Audio Players are optional scene helpers; code can call
+JamAudio directly without adding these components.\par
+\par
+\b 8. Programmer API\b0\par
+Sounds:\par
+JamAudio.Play(soundEvent); plays a Sound Event using its default positioning.\par
+JamAudio.Play(soundEvent, gameObject); plays from a GameObject position.\par
+JamAudio.Play(soundEvent, component); plays from a Component transform.\par
+JamAudio.Play(soundEvent, transform); plays from a Transform position.\par
+JamAudio.PlayAtPosition(soundEvent, worldPosition); plays at a Vector3 world
+position.\par
+\par
+Music:\par
+JamAudio.Play(musicEvent); plays or crossfades to a Music Event.\par
+JamAudio.PlayMusic(musicEvent); same as JamAudio.Play for music.\par
+JamAudio.PauseMusic(); pauses current music using the current fade settings.\par
+JamAudio.ResumeMusic(); resumes paused music using the current fade settings.\par
+JamAudio.StopMusic(); stops current music using the current fade settings.\par
+\par
+\b 9. Controls and Units\b0\par
+Volume (%) is displayed as 0 to 100 percent and is converted to Unity's linear
+0 to 1 AudioSource volume scale. Pitch (%) is displayed as 0 to 300 percent,
+where 100 percent is normal pitch and speed. Volume Variation (%) and Pitch
+Variation (%) use Min (-%) and Max (+%) offsets around the base value. Low-Pass
+Filter (%) removes high frequencies as the value increases. High-Pass Filter
+(%) removes low frequencies as the value increases. Fade In (Seconds) and Fade
+Out (Seconds) are measured in seconds.\par
+\par
+\b 10. Troubleshooting\b0\par
+If nothing plays, check that the Sound Event or Music Event has an assigned
+clip, the scene has one active AudioListener, playback is happening in Play
+Mode, and any assigned Audio Mixer Group is not muted. For 3D sounds, make sure
+the listener and sound source positions are sensible. For trigger or collision
+sounds, make sure the GameObject has the required Collider or Collider2D and
+that Unity's physics callback requirements are met.\par
+\par
+\b 11. Licensing and Third-Party Notices\b0\par
+The Jam Audio Toolkit code is licensed under the BSD Zero Clause License. See
+LICENSE for details. Demo music is by Patrick Sullivan and is included with
+permission from the rights holder for use as demo/sample content in this
+product. See Third-Party Notices.txt for details.\par
+}

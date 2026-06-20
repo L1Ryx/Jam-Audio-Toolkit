@@ -24,10 +24,10 @@ namespace JamAudioToolkit.Editor
 
         private ReorderableList clipsList;
 
-        private static bool showRandomization = true;
-        private static bool showFilters = true;
-        private static bool showPositioning = true;
-        private static bool showAdvanced;
+        private bool showRandomization = true;
+        private bool showFilters = true;
+        private bool showPositioning = true;
+        private bool showAdvanced;
 
         private void OnEnable()
         {

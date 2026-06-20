@@ -26,10 +26,10 @@ namespace JamAudioToolkit.Editor
         private const int PresetAwake = 5;
         private const int PresetCodeOrUnityEvent = 6;
 
-        private static readonly GUIContent CodeGuidance = new GUIContent(
+        private readonly GUIContent codeGuidance = new GUIContent(
             "Jam Audio Player is optional. Use it when this GameObject should play from Unity callbacks. For gameplay code, you can skip this component and call JamAudio.Play(soundEvent) or JamAudio.Play(soundEvent, gameObject).");
 
-        private static readonly string[] PlaybackPresetLabels =
+        private readonly string[] playbackPresetLabels =
         {
             "Custom",
             "Play On Start",
@@ -40,7 +40,7 @@ namespace JamAudioToolkit.Editor
             "Code or UnityEvent"
         };
 
-        private static bool showAdvanced;
+        private bool showAdvanced;
 
         private void OnEnable()
         {
@@ -71,7 +71,7 @@ namespace JamAudioToolkit.Editor
         {
             DrawScriptField();
 
-            EditorGUILayout.HelpBox(CodeGuidance.text, MessageType.Info);
+            EditorGUILayout.HelpBox(codeGuidance.text, MessageType.Info);
 
             EditorGUILayout.Space(4f);
             EditorGUILayout.LabelField("Sound", EditorStyles.boldLabel);
@@ -125,7 +125,7 @@ namespace JamAudioToolkit.Editor
             int selectedPreset = EditorGUILayout.Popup(
                 new GUIContent("Preset", "Choose a common callback setup. Use Custom when you want to tick the callback boxes yourself."),
                 currentPreset,
-                PlaybackPresetLabels);
+                playbackPresetLabels);
 
             if (selectedPreset != currentPreset)
             {

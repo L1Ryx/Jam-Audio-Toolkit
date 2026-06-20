@@ -17,9 +17,9 @@ namespace JamAudioToolkit.Editor
         private SerializedProperty fadeOutDurationProperty;
         private SerializedProperty outputMixerGroupProperty;
 
-        private static bool showFilters = true;
-        private static bool showTransitions = true;
-        private static bool showAdvanced;
+        private bool showFilters = true;
+        private bool showTransitions = true;
+        private bool showAdvanced;
 
         private void OnEnable()
         {
