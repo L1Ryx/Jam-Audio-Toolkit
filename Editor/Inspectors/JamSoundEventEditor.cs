@@ -58,7 +58,6 @@ namespace JamAudioToolkit.Editor
             serializedObject.ApplyModifiedProperties();
 
             DrawWarnings();
-            DrawPreviewButtons();
         }
 
         private void DrawProperties()
@@ -139,14 +138,13 @@ namespace JamAudioToolkit.Editor
             rect.y += 2f;
             rect.height = EditorGUIUtility.singleLineHeight;
 
-            const float previewButtonWidth = 56f;
             const float lengthWidth = 42f;
             const float gap = 4f;
 
             Rect fieldRect = new Rect(
                 rect.x,
                 rect.y,
-                Mathf.Max(60f, rect.width - previewButtonWidth - lengthWidth - (gap * 2f)),
+                Mathf.Max(60f, rect.width - lengthWidth - gap),
                 rect.height);
 
             Rect lengthRect = new Rect(
@@ -155,22 +153,8 @@ namespace JamAudioToolkit.Editor
                 lengthWidth,
                 rect.height);
 
-            Rect previewRect = new Rect(
-                lengthRect.xMax + gap,
-                rect.y,
-                previewButtonWidth,
-                rect.height);
-
             EditorGUI.PropertyField(fieldRect, clipProperty, GUIContent.none);
             EditorGUI.LabelField(lengthRect, JamAudioEditorUtility.FormatClipLength(clip), EditorStyles.miniLabel);
-
-            using (new EditorGUI.DisabledScope(clip == null))
-            {
-                if (GUI.Button(previewRect, "Preview", EditorStyles.miniButton))
-                {
-                    JamAudioPreviewUtility.PreviewClip(clip);
-                }
-            }
         }
 
         private void AddClipSlot(ReorderableList list)
@@ -286,24 +270,6 @@ namespace JamAudioToolkit.Editor
                 if (soundEvent.lowPassFilterAmount >= 0.75f && soundEvent.highPassFilterAmount >= 0.75f)
                 {
                     EditorGUILayout.HelpBox("Heavy low-pass and high-pass filtering together can make this sound very quiet or narrow.", MessageType.Info);
-                }
-            }
-        }
-
-        private void DrawPreviewButtons()
-        {
-            EditorGUILayout.Space();
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                if (GUILayout.Button("Preview"))
-                {
-                    JamAudioPreviewUtility.PreviewSoundEvent((JamSoundEvent)target);
-                }
-
-                if (GUILayout.Button("Stop Preview"))
-                {
-                    JamAudioPreviewUtility.StopPreview();
                 }
             }
         }

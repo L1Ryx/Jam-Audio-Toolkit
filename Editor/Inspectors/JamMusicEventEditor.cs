@@ -41,7 +41,6 @@ namespace JamAudioToolkit.Editor
             serializedObject.ApplyModifiedProperties();
 
             DrawWarnings();
-            DrawPreviewButtons();
         }
 
         private void DrawProperties()
@@ -132,22 +131,5 @@ namespace JamAudioToolkit.Editor
             }
         }
 
-        private void DrawPreviewButtons()
-        {
-            EditorGUILayout.Space();
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                if (GUILayout.Button("Preview"))
-                {
-                    JamAudioPreviewUtility.PreviewMusicEvent((JamMusicEvent)target);
-                }
-
-                if (GUILayout.Button("Stop Preview"))
-                {
-                    JamAudioPreviewUtility.StopPreview();
-                }
-            }
-        }
     }
 }

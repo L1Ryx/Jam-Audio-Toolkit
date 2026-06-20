@@ -93,7 +93,7 @@ namespace JamAudioToolkit
         {
             if (!Application.isPlaying)
             {
-                Debug.LogWarning("Jam Audio Player playback runs in Play Mode. Editor preview is coming in a later tooling step.", this);
+                Debug.LogWarning("Jam Audio Player playback runs in Play Mode.", this);
                 return;
             }
 

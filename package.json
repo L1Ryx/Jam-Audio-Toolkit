@@ -4,6 +4,8 @@
   "displayName": "Jam Audio Toolkit",
   "description": "Ridiculously fast Unity audio implementation for game jams.",
   "unity": "2022.3",
+  "unityRelease": "0f1",
+  "license": "0BSD",
   "author": {
     "name": "Jam Audio Toolkit"
   },

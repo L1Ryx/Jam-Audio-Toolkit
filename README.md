@@ -27,13 +27,13 @@ and is completely Unity-native, with no audio middleware required.
 - Human-readable low-pass and high-pass filters.
 - 2D or 3D positioning per Sound Event.
 - Optional Audio Mixer Group routing.
-- Inspector preview buttons and validation warnings.
+- Inspector validation warnings.
 
 ## Current Status
 
-The core runtime, editor inspectors, preview buttons, Jam Audio Players, static
-API, music manager, and Quick Demo sample are operational. Fuller release polish
-is still in progress.
+The core runtime, editor inspectors, Jam Audio Players, static API, music
+manager, and Quick Demo sample are operational. Fuller release polish is still
+in progress.
 
 ## Installation
 
@@ -101,7 +101,7 @@ loops, and any short reusable sound.
 3. Add one or more clips to `Clip(s)`.
 4. Adjust playback settings such as `Volume (%)`, `Pitch (%)`, filters,
    positioning, and randomization.
-5. Press `Preview` to quickly audition a clip.
+5. Play it through a Jam Audio Player, UnityEvent, or `JamAudio.Play(...)`.
 
 You can also select one or more `AudioClip` assets and choose:
 
@@ -176,7 +176,7 @@ crossfade, or any longer track controlled by the music manager.
 2. Choose `Create > Jam Audio > Empty Music Event`.
 3. Assign a music clip.
 4. Set `Volume (%)`, loop behavior, persistence, filters, and transition fades.
-5. Press `Preview` to audition the clip.
+5. Play it through a Jam Music Player, UnityEvent, or `JamAudio.PlayMusic(...)`.
 
 You can also select one `AudioClip` and choose:
 
