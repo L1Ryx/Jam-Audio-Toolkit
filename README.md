@@ -2,19 +2,26 @@
 
 Ridiculously fast Unity audio implementation for game jams.
 
-Jam Audio Toolkit is an easy way to put audio into your Unity games without
-building a whole audio system first. Create reusable sound and music events,
-tweak them in friendly inspectors, then play them with no-code components,
-UnityEvents, or one-line C# calls.
+**Free for all personal and commercial use. No credit required.**
 
-No middleware. No required scene setup. No audio expertise needed to start.
+Jam Audio Toolkit is an easy way to put audio into your Unity games
+without building a whole audio system first. Create reusable sound and music
+events then play them with no-code components or one-line script calls.
+
+It is called Jam Audio Toolkit because it is built to be fast enough for game
+jams: drag in a clip, make an event, then play it. I made this after spending too many jam hours wiring up basic audio behavior from scratch, like crossfades, filters, pitch/volume randomization, looping, positioning, and scene persistence. 
+
+No scene setup is needed: this works right out of the box. It builds for all
+Unity-supported platforms and is completely Unity-native, with no audio
+middleware required.
 
 ## What It Does
 
 - Reusable Sound Event assets for sound effects, UI sounds, ambience, and loops.
 - Reusable Music Event assets for tracks, fades, persistence, and crossfades.
-- No-code playback components for common Unity callbacks.
+- No-code Jam Audio Player components for common Unity callbacks.
 - A small `JamAudio` API for code-driven gameplay sounds and music.
+- Music transitions, fades, and crossfades.
 - Random clip selection, pitch/volume variation, and recent-clip repeat avoidance.
 - Human-readable low-pass and high-pass filters.
 - 2D or 3D positioning per Sound Event.
@@ -23,17 +30,15 @@ No middleware. No required scene setup. No audio expertise needed to start.
 
 ## Current Status
 
-Jam Audio Toolkit is in early MVP development. The core runtime, editor
-inspectors, preview buttons, no-code players, static API, and music manager are
-working. Sample scenes and fuller release polish are still in progress.
+The core runtime, editor inspectors, preview buttons, Jam Audio Players, static API, and music manager are operational. Sample scenes and fuller release polish are still in progress.
 
 ## Installation
 
 <details>
 <summary><strong>Unity Asset Store</strong></summary>
 
-Import the package into your Unity project. After import, you can immediately
-create Jam Audio assets and call `JamAudio` from scripts.
+Import the free package into your Unity project. After import, you can
+immediately create Jam Audio assets and call `JamAudio` from scripts.
 
 </details>
 
@@ -55,7 +60,7 @@ Jam Audio Toolkit is built around two ideas:
 
 - **Events are reusable audio recipes.** They store clips, volume, pitch,
   randomization, filters, fades, routing, and positioning.
-- **Players are optional scene helpers.** Use them when a designer wants
+- **Jam Audio Players are optional scene helpers.** Use them when a designer wants
   inspector-driven playback. Skip them when gameplay code can call `JamAudio`
   directly.
 
@@ -238,7 +243,7 @@ thing. Use whichever reads better in your script.
 
 </details>
 
-## Common Workflows
+## Example Things You Can Do
 
 <details>
 <summary><strong>UI Button Click</strong></summary>
@@ -296,10 +301,10 @@ Changing to another Music Event automatically crossfades.
   more low frequencies and sound thinner or more radio-like.
 - `Fade In (Seconds)` and `Fade Out (Seconds)` are measured in seconds.
 
-## Troubleshooting
+## FAQs
 
 <details>
-<summary><strong>Nothing Plays</strong></summary>
+<summary><strong>Why Is Nothing Playing?</strong></summary>
 
 - Make sure the Sound Event or Music Event has a clip assigned.
 - Runtime playback only works in Play Mode.
@@ -309,7 +314,7 @@ Changing to another Music Event automatically crossfades.
 </details>
 
 <details>
-<summary><strong>Trigger Or Collision Sounds Do Not Play</strong></summary>
+<summary><strong>Why Aren't Trigger Or Collision Sounds Playing?</strong></summary>
 
 - Make sure the GameObject has the needed Collider or Collider2D.
 - For collision callbacks, Unity usually needs a Rigidbody or Rigidbody2D on one
@@ -323,6 +328,14 @@ Changing to another Music Event automatically crossfades.
 
 No. `JamAudioPlayer` is for no-code Unity callback workflows. For normal
 gameplay scripts, use `JamAudio.Play(...)` directly.
+
+</details>
+
+<details>
+<summary><strong>Can I Use This In Any Project Without Credit?</strong></summary>
+
+Yes. You can use Jam Audio Toolkit in personal, commercial, jam, student, and
+studio projects. You do not need to credit Jam Audio Toolkit in your game.
 
 </details>
 
