@@ -102,6 +102,30 @@ like footsteps, impacts, or repeated UI sounds.
 </details>
 
 <details>
+<summary><strong>Import From Jam Audio Companion</strong></summary>
+
+Jam Audio Companion can export a `JamAudioLibrary.json` file. In Unity, choose:
+
+```text
+Tools > Jam Audio > Import Companion Library
+```
+
+If the file exists at `Assets/Jam Audio/Companion/JamAudioLibrary.json`, Jam
+Audio imports it automatically. Otherwise, Unity asks you to choose a JSON file.
+
+Imported assets are created or updated here:
+
+```text
+Assets/Jam Audio/Generated/Sound Events
+Assets/Jam Audio/Generated/Music Events
+```
+
+The importer turns Companion Sound Events and Music Events into normal
+`JamSoundEvent` and `JamMusicEvent` ScriptableObjects.
+
+</details>
+
+<details>
 <summary><strong>Play A Sound Without Code</strong></summary>
 
 Use `JamAudioPlayer` when a GameObject should play a sound from common Unity
