@@ -104,7 +104,11 @@ like footsteps, impacts, or repeated UI sounds.
 <details>
 <summary><strong>Import From Jam Audio Companion</strong></summary>
 
-Jam Audio Companion can export a `JamAudioLibrary.json` file. In Unity, choose:
+Jam Audio Companion can export a `JamAudioLibrary.json` file directly into your
+Unity project. In Companion, set your Unity project, then click
+`Export JSON for Unity`.
+
+In Unity, choose:
 
 ```text
 Tools > Jam Audio > Import Companion Library
@@ -112,6 +116,7 @@ Tools > Jam Audio > Import Companion Library
 
 If the file exists at `Assets/Jam Audio/Companion/JamAudioLibrary.json`, Jam
 Audio imports it automatically. Otherwise, Unity asks you to choose a JSON file.
+Most users should not need to browse for the file.
 
 Imported assets are created or updated here:
 

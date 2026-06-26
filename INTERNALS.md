@@ -140,6 +140,9 @@ Default input path:
 Assets/Jam Audio/Companion/JamAudioLibrary.json
 ```
 
+When the Companion app has a Unity project selected, its export button writes to
+that default path so Unity can import without a file picker.
+
 Generated output paths:
 
 ```text
@@ -174,4 +177,3 @@ folder. Missing paths become warnings; the rest of the import continues.
 - Prefer warnings over hard failures when an asset can still be imported or
   played partially.
 - After touching runtime or editor code, compile through a Unity test project.
-

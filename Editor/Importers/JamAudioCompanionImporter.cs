@@ -36,13 +36,12 @@ namespace JamAudioToolkit.Editor
                 return;
             }
 
+            EnsureGeneratedFolders();
+
             ImportReport report = new ImportReport();
             AssetDatabase.StartAssetEditing();
             try
             {
-                EnsureFolder(GeneratedSoundFolder);
-                EnsureFolder(GeneratedMusicFolder);
-
                 ImportSoundEvents(library.soundEvents ?? Array.Empty<CompanionSoundEvent>(), report);
                 ImportMusicEvents(library.musicEvents ?? Array.Empty<CompanionMusicEvent>(), report);
             }
@@ -55,6 +54,13 @@ namespace JamAudioToolkit.Editor
             AssetDatabase.Refresh();
 
             ShowImportReport(report);
+        }
+
+        private static void EnsureGeneratedFolders()
+        {
+            EnsureFolder(GeneratedSoundFolder);
+            EnsureFolder(GeneratedMusicFolder);
+            AssetDatabase.Refresh();
         }
 
         private static string ResolveLibraryPath()
@@ -119,7 +125,13 @@ namespace JamAudioToolkit.Editor
         {
             string message = report.BuildSummary();
             Debug.Log($"Jam Audio Companion import complete. {message.Replace("\n", " ")}");
-            EditorUtility.DisplayDialog(ImportDialogTitle, message, "OK");
+            JamAudioCompanionImportReportWindow.ShowReport(
+                report.soundEventsCreated,
+                report.soundEventsUpdated,
+                report.musicEventsCreated,
+                report.musicEventsUpdated,
+                report.warningCount,
+                GeneratedRootFolder);
         }
 
         private static void ImportSoundEvents(IReadOnlyList<CompanionSoundEvent> soundEvents, ImportReport report)
@@ -128,15 +140,17 @@ namespace JamAudioToolkit.Editor
             {
                 CompanionSoundEvent source = soundEvents[i];
                 string displayName = GetDisplayName(source.name, source.id, $"Sound Event {i + 1}");
-                string assetPath = GetGeneratedAssetPath(GeneratedSoundFolder, source.id, displayName);
+                string assetPath = GetGeneratedAssetPath(GeneratedSoundFolder, displayName);
+                string legacyAssetPath = GetLegacyGeneratedAssetPath(GeneratedSoundFolder, source.id, displayName);
 
                 JamSoundEvent soundEvent = LoadOrCreateAsset<JamSoundEvent>(
                     assetPath,
+                    legacyAssetPath,
                     displayName,
                     ref report.soundEventsCreated,
                     ref report.soundEventsUpdated);
 
-                soundEvent.name = displayName;
+                MatchObjectNameToAssetFile(soundEvent);
                 soundEvent.clips = LoadAudioClips(source.clips, displayName, report);
 
                 SetBaseAndVariation(
@@ -173,15 +187,17 @@ namespace JamAudioToolkit.Editor
             {
                 CompanionMusicEvent source = musicEvents[i];
                 string displayName = GetDisplayName(source.name, source.id, $"Music Event {i + 1}");
-                string assetPath = GetGeneratedAssetPath(GeneratedMusicFolder, source.id, displayName);
+                string assetPath = GetGeneratedAssetPath(GeneratedMusicFolder, displayName);
+                string legacyAssetPath = GetLegacyGeneratedAssetPath(GeneratedMusicFolder, source.id, displayName);
 
                 JamMusicEvent musicEvent = LoadOrCreateAsset<JamMusicEvent>(
                     assetPath,
+                    legacyAssetPath,
                     displayName,
                     ref report.musicEventsCreated,
                     ref report.musicEventsUpdated);
 
-                musicEvent.name = displayName;
+                MatchObjectNameToAssetFile(musicEvent);
                 musicEvent.musicClip = LoadAudioClip(source.track, displayName, report);
                 musicEvent.volume = Mathf.Clamp01(source.volume);
                 musicEvent.loop = source.loop;
@@ -198,12 +214,20 @@ namespace JamAudioToolkit.Editor
 
         private static T LoadOrCreateAsset<T>(
             string assetPath,
+            string legacyAssetPath,
             string displayName,
             ref int createdCount,
             ref int updatedCount)
             where T : ScriptableObject
         {
             T asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+            if (asset != null)
+            {
+                updatedCount++;
+                return asset;
+            }
+
+            asset = MoveLegacyAssetIfNeeded<T>(legacyAssetPath, assetPath);
             if (asset != null)
             {
                 updatedCount++;
@@ -217,10 +241,39 @@ namespace JamAudioToolkit.Editor
             }
 
             asset = ScriptableObject.CreateInstance<T>();
-            asset.name = displayName;
+            asset.name = Path.GetFileNameWithoutExtension(assetPath);
             AssetDatabase.CreateAsset(asset, assetPath);
             createdCount++;
             return asset;
+        }
+
+        private static T MoveLegacyAssetIfNeeded<T>(string legacyAssetPath, string assetPath)
+            where T : ScriptableObject
+        {
+            if (string.IsNullOrEmpty(legacyAssetPath) || legacyAssetPath == assetPath)
+            {
+                return null;
+            }
+
+            T legacyAsset = AssetDatabase.LoadAssetAtPath<T>(legacyAssetPath);
+            if (legacyAsset == null)
+            {
+                return null;
+            }
+
+            string targetPath = AssetDatabase.LoadMainAssetAtPath(assetPath) == null
+                ? assetPath
+                : AssetDatabase.GenerateUniqueAssetPath(assetPath);
+
+            string moveError = AssetDatabase.MoveAsset(legacyAssetPath, targetPath);
+            if (!string.IsNullOrEmpty(moveError))
+            {
+                Debug.LogWarning($"Jam Audio Companion Import: Could not rename legacy generated asset {legacyAssetPath}: {moveError}");
+                return legacyAsset;
+            }
+
+            T movedAsset = AssetDatabase.LoadAssetAtPath<T>(targetPath);
+            return movedAsset != null ? movedAsset : legacyAsset;
         }
 
         private static AudioClip[] LoadAudioClips(CompanionClipReference[] clipReferences, string eventName, ImportReport report)
@@ -308,14 +361,37 @@ namespace JamAudioToolkit.Editor
         {
             float orderedMin = Mathf.Clamp(Mathf.Min(min, max), clampMin, clampMax);
             float orderedMax = Mathf.Clamp(Mathf.Max(min, max), clampMin, clampMax);
-            baseValue = (orderedMin + orderedMax) * 0.5f;
-            variation = new Vector2(orderedMin - baseValue, orderedMax - baseValue);
+            baseValue = RoundAudioValue((orderedMin + orderedMax) * 0.5f);
+            variation = new Vector2(
+                RoundAudioValue(orderedMin - baseValue),
+                RoundAudioValue(orderedMax - baseValue));
         }
 
-        private static string GetGeneratedAssetPath(string folderPath, string id, string displayName)
+        private static float RoundAudioValue(float value)
+        {
+            return Mathf.Round(value * 10000f) / 10000f;
+        }
+
+        private static string GetGeneratedAssetPath(string folderPath, string displayName)
+        {
+            string fileName = SanitizeFileName(displayName);
+            return $"{folderPath}/{fileName}.asset";
+        }
+
+        private static string GetLegacyGeneratedAssetPath(string folderPath, string id, string displayName)
         {
             string fileName = SanitizeFileName(string.IsNullOrWhiteSpace(id) ? displayName : id);
             return $"{folderPath}/{fileName}.asset";
+        }
+
+        private static void MatchObjectNameToAssetFile(UnityEngine.Object asset)
+        {
+            string assetPath = AssetDatabase.GetAssetPath(asset);
+            string fileName = Path.GetFileNameWithoutExtension(assetPath);
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                asset.name = fileName;
+            }
         }
 
         private static string GetDisplayName(string name, string id, string fallback)
@@ -492,6 +568,86 @@ namespace JamAudioToolkit.Editor
                     $"Music Events: {musicEventsCreated} created, {musicEventsUpdated} updated\n" +
                     $"Warnings: {warningCount}";
             }
+        }
+    }
+
+    internal sealed class JamAudioCompanionImportReportWindow : EditorWindow
+    {
+        private int soundEventsCreated;
+        private int soundEventsUpdated;
+        private int musicEventsCreated;
+        private int musicEventsUpdated;
+        private int warningCount;
+        private string generatedRootFolder;
+
+        public static void ShowReport(
+            int soundEventsCreated,
+            int soundEventsUpdated,
+            int musicEventsCreated,
+            int musicEventsUpdated,
+            int warningCount,
+            string generatedRootFolder)
+        {
+            JamAudioCompanionImportReportWindow window = CreateInstance<JamAudioCompanionImportReportWindow>();
+            window.titleContent = new GUIContent("Jam Audio Import");
+            window.soundEventsCreated = soundEventsCreated;
+            window.soundEventsUpdated = soundEventsUpdated;
+            window.musicEventsCreated = musicEventsCreated;
+            window.musicEventsUpdated = musicEventsUpdated;
+            window.warningCount = warningCount;
+            window.generatedRootFolder = generatedRootFolder;
+            window.minSize = new Vector2(340f, 220f);
+            window.maxSize = new Vector2(520f, 320f);
+            window.ShowUtility();
+        }
+
+        private void OnGUI()
+        {
+            GUILayout.Space(8f);
+            EditorGUILayout.LabelField(
+                warningCount > 0 ? "Import Complete With Warnings" : "Import Complete",
+                EditorStyles.boldLabel);
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField(
+                    warningCount > 0
+                        ? $"{warningCount} warning(s). Check the Console for details."
+                        : "No warnings.");
+
+                EditorGUILayout.Space(4f);
+                EditorGUILayout.LabelField("Sound Events", $"{soundEventsCreated} created, {soundEventsUpdated} updated");
+                EditorGUILayout.LabelField("Music Events", $"{musicEventsCreated} created, {musicEventsUpdated} updated");
+            }
+
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField("Generated Assets", generatedRootFolder);
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Select Generated Folder"))
+                {
+                    SelectGeneratedFolder();
+                }
+
+                if (GUILayout.Button("Close"))
+                {
+                    Close();
+                }
+            }
+        }
+
+        private void SelectGeneratedFolder()
+        {
+            UnityEngine.Object folder = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(generatedRootFolder);
+            if (folder == null)
+            {
+                Debug.LogWarning($"Jam Audio Companion Import: Could not select generated folder at {generatedRootFolder}.");
+                return;
+            }
+
+            Selection.activeObject = folder;
+            EditorGUIUtility.PingObject(folder);
         }
     }
 }
