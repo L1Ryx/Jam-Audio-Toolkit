@@ -114,6 +114,8 @@ namespace JamAudioToolkit.Editor
 
             float lowerPercent = Mathf.Max(0f, -orderedValue.x * PercentScale);
             float upperPercent = Mathf.Max(0f, orderedValue.y * PercentScale);
+            lowerPercent = RoundPercent(lowerPercent);
+            upperPercent = RoundPercent(upperPercent);
 
             EditorGUI.LabelField(minLabelPosition, "Min (-%)");
             lowerPercent = Mathf.Max(0f, EditorGUI.FloatField(minFieldPosition, lowerPercent));
@@ -121,7 +123,14 @@ namespace JamAudioToolkit.Editor
             EditorGUI.LabelField(maxLabelPosition, "Max (+%)");
             upperPercent = Mathf.Max(0f, EditorGUI.FloatField(maxFieldPosition, upperPercent));
 
-            value = new Vector2(-lowerPercent / PercentScale, upperPercent / PercentScale);
+            value = new Vector2(
+                -RoundPercent(lowerPercent) / PercentScale,
+                RoundPercent(upperPercent) / PercentScale);
+        }
+
+        private static float RoundPercent(float value)
+        {
+            return Mathf.Round(value * 1000f) / 1000f;
         }
     }
 
