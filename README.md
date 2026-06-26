@@ -36,6 +36,22 @@ manager, and Quick Demo sample are operational.
 
 More features are on the way! All feedback is welcome. Submit them [here](mailto:shawnguo.dev@gmail.com).
 
+## Optional Companion App
+
+Jam Audio Toolkit Companion is a separate desktop authoring tool for quickly
+creating Sound Events and Music Events outside Unity. It can preview audio,
+validate event data, and export a `JamAudioLibrary.json` file that this Unity
+package imports into normal Jam Audio ScriptableObject assets.
+
+The Companion app is optional. Jam Audio Toolkit works fully inside Unity
+without it.
+
+Download the latest Companion release here:
+
+```text
+https://github.com/L1Ryx/Jam-Audio-Toolkit-Companion/releases/latest
+```
+
 ## Installation
 
 <details>
