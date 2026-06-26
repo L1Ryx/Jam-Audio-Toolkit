@@ -43,6 +43,8 @@ creating Sound Events and Music Events outside Unity. It can preview audio,
 validate event data, and export a `JamAudioLibrary.json` file that this Unity
 package imports into normal Jam Audio ScriptableObject assets.
 
+![Jam Audio Toolkit Companion](https://raw.githubusercontent.com/L1Ryx/Jam-Audio-Toolkit-Companion/main/docs/JATC-Screenshot.png)
+
 The Companion app is optional. Jam Audio Toolkit works fully inside Unity
 without it.
 
